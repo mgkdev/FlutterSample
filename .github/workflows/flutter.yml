@@ -6,10 +6,17 @@ on:
   # pull_request:
     # branches: [ "main" ]
   workflow_dispatch:
-    inputs: {}
+    inputs:
+      run_build_android:
+        description: "Run: Build for Android"
+        type: boolean
+        default: true
+
+env:
+  FLUTTER_VERSION: '3.13.9'
 
 jobs:
-  build:
+  check:
 
     runs-on: ubuntu-latest
 
@@ -18,8 +25,12 @@ jobs:
 
     - uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.13.9'
+        flutter-version: ${{ env.FLUTTER_VERSION }}
         channel: 'stable'
+        cache: true
+        cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+        cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
+        architecture: x64
 
     - name: Version
       run: flutter --version
@@ -29,3 +40,35 @@ jobs:
 
     - name: Test
       run: flutter test
+
+  build_android:
+    name: "Build for Android"
+    needs: [check]
+    if: inputs.run_build_android
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: gradle
+
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: 'stable'
+        cache: true
+        cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+        cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
+        architecture: x64
+
+    - name: Version
+      run: flutter --version
+
+    - run: flutter build apk
+
+    - run: flutter build appbundle
