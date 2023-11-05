@@ -1,8 +1,8 @@
-name: "Setup"
+name: 'Setup'
 description: 'Setup Composite Action'
 
 runs:
-  using: "composite"
+  using: 'composite'
 
   steps:
     - uses: subosito/flutter-action@v2
@@ -12,14 +12,16 @@ runs:
         cache: true
 
     - name: Version
-      run: flutter --version
+      run: |
+        flutter --version
+        dart --version
       shell: bash
 
     - name: 'Cache pubspec dependencies'
       uses: actions/cache@v3
       with:
         path: |
-          ${{ env.FLUTTER_HOME }}/.pub-cache
+          ${{ env.PUB_CACHE }}
           **/.packages
           **/.flutter-plugins
           **/.flutter-plugin-dependencies

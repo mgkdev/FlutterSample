@@ -8,27 +8,27 @@ on:
   workflow_dispatch:
     inputs:
       run_build_android:
-        description: "Run: Build for Android"
+        description: 'Run: Build for Android'
         type: boolean
         default: true
       run_build_ios:
-        description: "Run: Build for iOS"
+        description: 'Run: Build for iOS'
         type: boolean
         default: true
       run_build_web:
-        description: "Run: Build for Web"
+        description: 'Run: Build for Web'
         type: boolean
         default: true
       run_build_windows:
-        description: "Run: Build for Windows"
+        description: 'Run: Build for Windows'
         type: boolean
         default: true
       run_build_linux:
-        description: "Run: Build for Linux"
+        description: 'Run: Build for Linux'
         type: boolean
         default: true
       run_build_macos:
-        description: "Run: Build for macOS"
+        description: 'Run: Build for macOS'
         type: boolean
         default: true
 
@@ -38,11 +38,14 @@ permissions:
   checks: write
 
 env:
+  # https://docs.flutter.dev/release/archive
   FLUTTER_VERSION: '3.13.9'
+  #  https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#xcode
+  DEVELOPER_DIR: '/Applications/Xcode_15.0.1.app/Contents/Developer'
 
 jobs:
   check:
-    name: "Check"
+    name: 'Check'
 
     runs-on: ubuntu-latest
 
@@ -68,7 +71,7 @@ jobs:
           fail-on-error: true
 
   build_android:
-    name: "Build for Android"
+    name: 'Build for Android'
     needs: [check]
     if: inputs.run_build_android
 
@@ -100,11 +103,11 @@ jobs:
         path: build/app/outputs/bundle/release
 
   build_ios:
-    name: "Build for iOS"
+    name: 'Build for iOS'
     needs: [check]
     if: inputs.run_build_ios
 
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
     - uses: actions/checkout@v3
@@ -131,7 +134,7 @@ jobs:
         path: build/ios/archive
 
   build_web:
-    name: "Build for Web"
+    name: 'Build for Web'
     needs: [check]
     if: inputs.run_build_web
 
@@ -150,7 +153,7 @@ jobs:
           path: build/web
 
   build_windows:
-    name: "Build for Windows"
+    name: 'Build for Windows'
     needs: [check]
     if: inputs.run_build_windows
 
@@ -171,7 +174,7 @@ jobs:
           path: build/windows
 
   build_linux:
-    name: "Build for Linux"
+    name: 'Build for Linux'
     needs: [check]
     if: inputs.run_build_linux
 
@@ -196,11 +199,11 @@ jobs:
           path: build/linux
 
   build_macos:
-    name: "Build for macOS"
+    name: 'Build for macOS'
     needs: [check]
     if: inputs.run_build_macos
 
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - uses: actions/checkout@v3
