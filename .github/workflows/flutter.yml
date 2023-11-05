@@ -15,6 +15,14 @@ on:
         description: "Run: Build for iOS"
         type: boolean
         default: true
+      run_build_web:
+        description: "Run: Build for Web"
+        type: boolean
+        default: true
+      run_build_windows:
+        description: "Run: Build for Windows"
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -33,27 +41,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - uses: subosito/flutter-action@v2
-      with:
-        flutter-version: ${{ env.FLUTTER_VERSION }}
-        channel: 'stable'
-        cache: true
-
-    - name: Version
-      run: flutter --version
-
-    - name: 'Cache pubspec dependencies'
-      uses: actions/cache@v3
-      with:
-        path: |
-          ${{ env.FLUTTER_HOME }}/.pub-cache
-          **/.packages
-          **/.flutter-plugins
-          **/.flutter-plugin-dependencies
-          **/.dart_tool/package_config.json
-        key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
-        restore-keys: |
-          build-pubspec-
+    - name: Setup
+      uses: ./.github/actions/setup
 
     - name: Analyze
       run: flutter analyze
@@ -87,27 +76,8 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - uses: subosito/flutter-action@v2
-      with:
-        flutter-version: ${{ env.FLUTTER_VERSION }}
-        channel: 'stable'
-        cache: true
-
-    - name: Version
-      run: flutter --version
-
-    - name: 'Cache pubspec dependencies'
-      uses: actions/cache@v3
-      with:
-        path: |
-          ${{ env.FLUTTER_HOME }}/.pub-cache
-          **/.packages
-          **/.flutter-plugins
-          **/.flutter-plugin-dependencies
-          **/.dart_tool/package_config.json
-        key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
-        restore-keys: |
-          build-pubspec-
+    - name: Setup
+      uses: ./.github/actions/setup
 
     - run: flutter build apk
     - uses: actions/upload-artifact@v3
@@ -130,27 +100,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: subosito/flutter-action@v2
-      with:
-        flutter-version: ${{ env.FLUTTER_VERSION }}
-        channel: 'stable'
-        cache: true
 
-    - name: Version
-      run: flutter --version
-
-    - name: "Cache pubspec dependencies"
-      uses: actions/cache@v3
-      with:
-        path: |
-          ${{ env.FLUTTER_HOME }}/.pub-cache
-          **/.packages
-          **/.flutter-plugins
-          **/.flutter-plugin-dependencies
-          **/.dart_tool/package_config.json
-        key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
-        restore-keys: |
-          build-pubspec-
+    - name: Setup
+      uses: ./.github/actions/setup
 
     - run: flutter build ios --simulator
     - uses: actions/upload-artifact@v3
@@ -169,3 +121,39 @@ jobs:
       with:
         name: build-ipa
         path: build/ios/archive
+
+  build_web:
+    name: "Build for Web"
+    needs: [check]
+    if: inputs.run_build_web
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - run: flutter build web
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-web
+          path: build/web
+
+  build_windows:
+    name: "Build for Windows"
+    needs: [check]
+    if: inputs.run_build_windows
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - run: flutter config --enable-windows-desktop
+
+      - run: flutter build windows

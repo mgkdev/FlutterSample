@@ -1,0 +1,29 @@
+name: "Setup"
+description: 'Setup Composite Action'
+
+runs:
+  using: "composite"
+
+  steps:
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: 'stable'
+        cache: true
+
+    - name: Version
+      run: flutter --version
+      shell: bash
+
+    - name: 'Cache pubspec dependencies'
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ env.FLUTTER_HOME }}/.pub-cache
+          **/.packages
+          **/.flutter-plugins
+          **/.flutter-plugin-dependencies
+          **/.dart_tool/package_config.json
+        key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: |
+          build-pubspec-
