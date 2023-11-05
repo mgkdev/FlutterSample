@@ -16,6 +16,11 @@ on:
         type: boolean
         default: true
 
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
 env:
   FLUTTER_VERSION: '3.13.9'
 
@@ -134,7 +139,7 @@ jobs:
     - name: Version
       run: flutter --version
 
-    - name: 'Cache pubspec dependencies'
+    - name: "Cache pubspec dependencies"
       uses: actions/cache@v3
       with:
         path: |
