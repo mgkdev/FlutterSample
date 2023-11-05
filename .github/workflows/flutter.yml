@@ -11,12 +11,17 @@ on:
         description: "Run: Build for Android"
         type: boolean
         default: true
+      run_build_ios:
+        description: "Run: Build for iOS"
+        type: boolean
+        default: true
 
 env:
   FLUTTER_VERSION: '3.13.9'
 
 jobs:
   check:
+    name: "Check"
 
     runs-on: ubuntu-latest
 
@@ -28,23 +33,43 @@ jobs:
         flutter-version: ${{ env.FLUTTER_VERSION }}
         channel: 'stable'
         cache: true
-        cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
-        cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
-        architecture: x64
 
     - name: Version
       run: flutter --version
+
+    - name: 'Cache pubspec dependencies'
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ env.FLUTTER_HOME }}/.pub-cache
+          **/.packages
+          **/.flutter-plugins
+          **/.flutter-plugin-dependencies
+          **/.dart_tool/package_config.json
+        key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: |
+          build-pubspec-
 
     - name: Analyze
       run: flutter analyze
 
     - name: Test
-      run: flutter test
+      run: flutter test --machine > test-report.json
+
+    - name: Test Report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+          name: Flutter Tests
+          path: test-report.json
+          reporter: flutter-json
+          fail-on-error: true
 
   build_android:
     name: "Build for Android"
     needs: [check]
     if: inputs.run_build_android
+
     runs-on: ubuntu-latest
 
     steps:
@@ -62,13 +87,80 @@ jobs:
         flutter-version: ${{ env.FLUTTER_VERSION }}
         channel: 'stable'
         cache: true
-        cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
-        cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
-        architecture: x64
 
     - name: Version
       run: flutter --version
 
+    - name: 'Cache pubspec dependencies'
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ env.FLUTTER_HOME }}/.pub-cache
+          **/.packages
+          **/.flutter-plugins
+          **/.flutter-plugin-dependencies
+          **/.dart_tool/package_config.json
+        key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: |
+          build-pubspec-
+
     - run: flutter build apk
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-apk
+        path: build/app/outputs/flutter-apk
 
     - run: flutter build appbundle
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-appbundle
+        path: build/app/outputs/bundle/release
+
+  build_ios:
+    name: "Build for iOS"
+    needs: [check]
+    if: inputs.run_build_ios
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: 'stable'
+        cache: true
+
+    - name: Version
+      run: flutter --version
+
+    - name: 'Cache pubspec dependencies'
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ env.FLUTTER_HOME }}/.pub-cache
+          **/.packages
+          **/.flutter-plugins
+          **/.flutter-plugin-dependencies
+          **/.dart_tool/package_config.json
+        key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: |
+          build-pubspec-
+
+    - run: flutter build ios --simulator
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-ios_simulator
+        path: build/ios/iphonesimulator
+
+    - run: flutter build ios --no-codesign
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-ios
+        path: build/ios/iphoneos
+
+    - run: flutter build ipa --no-codesign
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-ipa
+        path: build/ios/archive
