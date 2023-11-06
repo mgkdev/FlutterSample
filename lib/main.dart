@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 void main() {
   runApp(const MyApp());
@@ -85,6 +86,48 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: [
+          PopupMenuButton(
+            icon: const Icon(Icons.more_vert),
+            itemBuilder: (context) {
+              const applicationIcon = FlutterLogo();
+              return [
+                PopupMenuItem(
+                  onTap: () async {
+                    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+                    if (!context.mounted) {
+                      return;
+                    }
+                    showAboutDialog(
+                      context: context,
+                      applicationName: packageInfo.appName,
+                      applicationVersion:
+                          "${packageInfo.version} (${packageInfo.buildNumber})",
+                      applicationIcon: applicationIcon,
+                    );
+                  },
+                  child: const Text("About"),
+                ),
+                PopupMenuItem(
+                  onTap: () async {
+                    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+                    if (!context.mounted) {
+                      return;
+                    }
+                    showLicensePage(
+                      context: context,
+                      applicationName: packageInfo.appName,
+                      applicationVersion:
+                          "${packageInfo.version} (${packageInfo.buildNumber})",
+                      applicationIcon: applicationIcon,
+                    );
+                  },
+                  child: const Text("Licenses"),
+                ),
+              ];
+            },
+          ),
+        ],
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
