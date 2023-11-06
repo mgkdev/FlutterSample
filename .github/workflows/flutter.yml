@@ -46,9 +46,9 @@ permissions:
 env:
   # https://docs.flutter.dev/release/archive
   FLUTTER_VERSION: '3.13.9'
-  FLUTTER_BUILD_NUMBER_ARG: ${{ inputs.build_number != '' && format('--build-number {0}', inputs.build_number) || '' }}
-  FLUTTER_BUILD_NAME_ARG: ${{ inputs.build_name != '' && format('--build-name {0}', inputs.build_name) || '' }}
-  FLUTTER_BUILD_ARGS: ${{ env.FLUTTER_BUILD_NUMBER_ARG }} ${{ env.FLUTTER_BUILD_NAME_ARG }}
+  FLUTTER_BUILD_ARGS: >-
+    ${{ inputs.build_number != '' && format('--build-number {0}', inputs.build_number) || '' }}
+    ${{ inputs.build_name != '' && format('--build-name {0}', inputs.build_name) || '' }}
   # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#xcode
   DEVELOPER_DIR: '/Applications/Xcode_15.0.1.app/Contents/Developer'
 
