@@ -31,6 +31,12 @@ on:
         description: 'Run: Build for macOS'
         type: boolean
         default: true
+      build_number:
+        description: 'Build Number (ex. 123)'
+        type: string
+      build_name:
+        description: 'Build Name (ex. 1.2.3)'
+        type: string
 
 permissions:
   contents: read
@@ -40,7 +46,10 @@ permissions:
 env:
   # https://docs.flutter.dev/release/archive
   FLUTTER_VERSION: '3.13.9'
-  #  https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#xcode
+  FLUTTER_BUILD_NUMBER_ARG: ${{ inputs.build_number != '' && format('--build-number {0}', inputs.build_number) || '' }}
+  FLUTTER_BUILD_NAME_ARG: ${{ inputs.build_name != '' && format('--build-name {0}', inputs.build_name) || '' }}
+  FLUTTER_BUILD_ARGS: ${{ env.FLUTTER_BUILD_NUMBER_ARG }} ${{ env.FLUTTER_BUILD_NAME_ARG }}
+  # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#xcode
   DEVELOPER_DIR: '/Applications/Xcode_15.0.1.app/Contents/Developer'
 
 jobs:
@@ -90,13 +99,13 @@ jobs:
     - name: Setup
       uses: ./.github/actions/setup
 
-    - run: flutter build apk
+    - run: flutter build apk ${{ env.FLUTTER_BUILD_ARGS }}
     - uses: actions/upload-artifact@v3
       with:
         name: build-apk
         path: build/app/outputs/flutter-apk
 
-    - run: flutter build appbundle
+    - run: flutter build appbundle ${{ env.FLUTTER_BUILD_ARGS }}
     - uses: actions/upload-artifact@v3
       with:
         name: build-appbundle
@@ -115,19 +124,19 @@ jobs:
     - name: Setup
       uses: ./.github/actions/setup
 
-    - run: flutter build ios --simulator
+    - run: flutter build ios --simulator ${{ env.FLUTTER_BUILD_ARGS }}
     - uses: actions/upload-artifact@v3
       with:
         name: build-ios_simulator
         path: build/ios/iphonesimulator
 
-    - run: flutter build ios --no-codesign
+    - run: flutter build ios --no-codesign ${{ env.FLUTTER_BUILD_ARGS }}
     - uses: actions/upload-artifact@v3
       with:
         name: build-ios
         path: build/ios/iphoneos
 
-    - run: flutter build ipa --no-codesign
+    - run: flutter build ipa --no-codesign ${{ env.FLUTTER_BUILD_ARGS }}
     - uses: actions/upload-artifact@v3
       with:
         name: build-ipa
@@ -146,7 +155,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
-      - run: flutter build web
+      - run: flutter build web ${{ env.FLUTTER_BUILD_ARGS }}
       - uses: actions/upload-artifact@v3
         with:
           name: build-web
@@ -167,7 +176,7 @@ jobs:
 
       - run: flutter config --enable-windows-desktop
 
-      - run: flutter build windows
+      - run: flutter build windows ${{ env.FLUTTER_BUILD_ARGS }}
       - uses: actions/upload-artifact@v3
         with:
           name: build-windows
@@ -192,7 +201,7 @@ jobs:
 
       - run: flutter config --enable-linux-desktop
 
-      - run: flutter build linux
+      - run: flutter build linux ${{ env.FLUTTER_BUILD_ARGS }}
       - uses: actions/upload-artifact@v3
         with:
           name: build-linux
@@ -213,7 +222,7 @@ jobs:
 
       - run: flutter config --enable-macos-desktop
 
-      - run: flutter build macos
+      - run: flutter build macos ${{ env.FLUTTER_BUILD_ARGS }}
       - uses: actions/upload-artifact@v3
         with:
           name: build-macos
