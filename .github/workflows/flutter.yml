@@ -72,7 +72,7 @@ jobs:
 
   build_android:
     name: "Build for Android"
-    needs: [ check ]
+    needs: check
     if: (!cancelled() && !failure()) && inputs.run_build_android
 
     runs-on: ubuntu-latest
@@ -90,7 +90,7 @@ jobs:
 
   build_ios:
     name: "Build for iOS"
-    needs: [ check ]
+    needs: check
     if: (!cancelled() && !failure()) && inputs.run_build_ios
 
     runs-on: macos-13
@@ -111,7 +111,7 @@ jobs:
 
   build_web:
     name: "Build for Web"
-    needs: [ check ]
+    needs: check
     if: (!cancelled() && !failure()) && inputs.run_build_web
 
     runs-on: ubuntu-latest
@@ -127,7 +127,7 @@ jobs:
 
   build_windows:
     name: "Build for Windows"
-    needs: [ check ]
+    needs: check
     if: (!cancelled() && !failure()) && inputs.run_build_windows
 
     runs-on: windows-latest
@@ -143,7 +143,7 @@ jobs:
 
   build_linux:
     name: "Build for Linux"
-    needs: [ check ]
+    needs: check
     if: (!cancelled() && !failure()) && inputs.run_build_linux
 
     runs-on: ubuntu-latest
@@ -159,7 +159,7 @@ jobs:
 
   build_macos:
     name: "Build for macOS"
-    needs: [ check ]
+    needs: check
     if: (!cancelled() && !failure()) && inputs.run_build_macos
 
     runs-on: macos-13
@@ -175,3 +175,62 @@ jobs:
 
       - name: Build for macOS
         uses: ./.github/actions/build_macos
+
+  notify:
+    name: "Notify"
+    needs:
+      - check
+      - build_android
+      - build_ios
+      - build_web
+      - build_windows
+      - build_linux
+      - build_macos
+    if: always()
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Assign
+        id: assign
+        run: |
+          echo "slack_webhook_url=${{ secrets.SLACK_WEBHOOK_URL }}" >> $GITHUB_OUTPUT
+
+      - name: Slack Payload
+        id: slack_payload
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const env = process.env;
+            const needs = JSON.parse(env.NEEDS);
+            const counts = Object.entries(needs).reduce((acc, curr) => {
+              const [key, value] = curr;
+              const result = value.result;
+              acc[result] = acc[result] ? acc[result] + 1 : 1;
+              return acc;
+            }, {});
+            const results = Object.entries(counts).map(([key, value]) => `${key}: ${value}`);
+            const repository = `${context.repo.owner}/${context.repo.repo}`;
+            const url = `${context.serverUrl}/${repository}/actions/runs/${context.runId}`;
+            const texts = [
+              `[${repository}] Run: ${context.workflow} - ${context.ref} (${context.sha})`,
+              `${url}`,
+              ...results
+            ];
+            const text = texts.join("\n");
+            const color = counts["failure"] ? "danger" :  "good";
+            const fields = [{
+              "title": counts["failure"] ? "Failure" :  "Success"
+            }];
+            return {
+              text, color, fields
+            };
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+
+      - uses: slackapi/slack-github-action@v1.24.0
+        if: steps.assign.outputs.slack_webhook_url != ''
+        with:
+          payload: ${{ steps.slack_payload.outputs.result }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ steps.assign.outputs.slack_webhook_url }}
