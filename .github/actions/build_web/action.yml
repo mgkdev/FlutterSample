@@ -1,0 +1,13 @@
+name: "Build for Web"
+description: "Build for Web Composite Action"
+
+runs:
+  using: "composite"
+
+  steps:
+    - run: flutter build web ${{ env.FLUTTER_BUILD_ARGS }}
+      shell: bash
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-web
+        path: build/web

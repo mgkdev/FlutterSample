@@ -1,0 +1,32 @@
+name: "Build for iOS"
+description: "Build for iOS Composite Action"
+
+inputs:
+  obfuscation:
+    description: "Obfuscation"
+    default: "true"
+
+runs:
+  using: "composite"
+
+  steps:
+    - run: flutter build ios --simulator ${{ env.FLUTTER_BUILD_ARGS }}
+      shell: bash
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-ios_simulator
+        path: build/ios/iphonesimulator
+
+    - run: flutter build ios --no-codesign ${{ env.FLUTTER_BUILD_ARGS }} ${{ fromJSON(inputs.obfuscation) && '--obfuscate --split-debug-info=build/ios/iphoneos' || '' }}
+      shell: bash
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-ios
+        path: build/ios/iphoneos
+
+    - run: flutter build ipa --no-codesign ${{ env.FLUTTER_BUILD_ARGS }} ${{ fromJSON(inputs.obfuscation) && '--obfuscate --split-debug-info=build/ios/archive' || '' }}
+      shell: bash
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-ipa
+        path: build/ios/archive

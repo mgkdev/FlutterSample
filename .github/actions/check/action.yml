@@ -1,0 +1,23 @@
+name: "Check"
+description: "Check Composite Action"
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Analyze
+      run: flutter analyze
+      shell: bash
+
+    - name: Test
+      run: flutter test --machine > test-report.json
+      shell: bash
+
+    - name: Test Report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Flutter Tests
+        path: test-report.json
+        reporter: flutter-json
+        fail-on-error: true

@@ -1,0 +1,16 @@
+name: "Build for macOS"
+description: "Build for macOS Composite Action"
+
+runs:
+  using: "composite"
+
+  steps:
+    - run: flutter config --enable-macos-desktop
+      shell: bash
+
+    - run: flutter build macos ${{ env.FLUTTER_BUILD_ARGS }} ${{ inputs.obfuscation && '--obfuscate --split-debug-info=build/macos' || '' }}
+      shell: bash
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-macos
+        path: build/macos

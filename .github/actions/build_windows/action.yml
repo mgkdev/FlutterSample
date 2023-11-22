@@ -1,0 +1,16 @@
+name: "Build for Windows"
+description: "Build for Windows Composite Action"
+
+runs:
+  using: "composite"
+
+  steps:
+    - run: flutter config --enable-windows-desktop
+      shell: bash
+
+    - run: flutter build windows ${{ env.FLUTTER_BUILD_ARGS }} ${{ inputs.obfuscation && '--obfuscate --split-debug-info=build/windows' || '' }}
+      shell: bash
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-windows
+        path: build/windows
