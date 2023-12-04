@@ -45,7 +45,6 @@ on:
 permissions:
   contents: read
   actions: read
-  checks: write
 
 env:
   # https://docs.flutter.dev/release/archive

@@ -10,14 +10,14 @@ runs:
       shell: bash
 
     - name: Test
-      run: flutter test --machine > test-report.json
+      run: |
+        dart pub global activate junitreport
+        flutter test --machine | tojunit --output test-report.xml
       shell: bash
 
-    - name: Test Report
-      uses: dorny/test-reporter@v1
+    - uses: mikepenz/action-junit-report@v4
       if: success() || failure()
       with:
-        name: Flutter Tests
-        path: test-report.json
-        reporter: flutter-json
-        fail-on-error: true
+        report_paths: test-report.xml
+        annotate_only: true
+        detailed_summary: true
