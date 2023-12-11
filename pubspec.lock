@@ -255,4 +255,4 @@ packages:
     version: "5.0.9"
 sdks:
   dart: ">=3.2.3 <4.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.6.0"
