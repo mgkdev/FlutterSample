@@ -1,4 +1,4 @@
-name: Flutter CI
+name: Flutter CD
 
 on:
   workflow_dispatch:

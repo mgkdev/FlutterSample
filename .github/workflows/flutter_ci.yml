@@ -1,0 +1,31 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  # https://docs.flutter.dev/release/archive
+  FLUTTER_VERSION: "3.16.3"
+  FLUTTER_BUILD_ARGS:
+
+jobs:
+  check:
+    name: "Check"
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Check
+        uses: ./.github/actions/check
