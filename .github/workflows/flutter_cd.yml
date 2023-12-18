@@ -48,7 +48,7 @@ permissions:
 
 env:
   # https://docs.flutter.dev/release/archive
-  FLUTTER_VERSION: "3.16.3"
+  FLUTTER_VERSION: "3.16.4"
   FLUTTER_BUILD_ARGS: >-
     ${{ inputs.build_number != '' && format('--build-number {0}', inputs.build_number) || '' }}
     ${{ inputs.build_name != '' && format('--build-name {0}', inputs.build_name) || '' }}
