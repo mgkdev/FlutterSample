@@ -14,7 +14,7 @@ permissions:
 
 env:
   # https://docs.flutter.dev/release/archive
-  FLUTTER_VERSION: "3.16.4"
+  FLUTTER_VERSION: "3.16.8"
   FLUTTER_BUILD_ARGS:
 
 jobs:
