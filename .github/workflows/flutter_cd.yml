@@ -233,3 +233,13 @@ jobs:
           payload: ${{ steps.slack_payload.outputs.result }}
         env:
           SLACK_WEBHOOK_URL: ${{ steps.assign.outputs.slack_webhook_url }}
+
+  actions_timeline:
+    name: "Actions Timeline"
+    needs: notify
+    if: always()
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: Kesin11/actions-timeline@v2
