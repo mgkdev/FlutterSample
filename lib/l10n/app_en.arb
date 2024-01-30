@@ -1,0 +1,7 @@
+{
+  "appBar_title": "Flutter Demo Home Page",
+  "popupMenuItem_about": "About",
+  "popupMenuItem_licenses": "Licenses",
+  "body_center": "You have pushed the button this many times:",
+  "floatingActionButton_tooltip": "Increment"
+}
