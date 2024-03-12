@@ -1,0 +1,7 @@
+{
+  "appBar_title": "Flutter デモ ホーム ページ",
+  "popupMenuItem_about": "アプリについて",
+  "popupMenuItem_licenses": "ライセンス",
+  "body_center": "ボタンを押した回数：",
+  "floatingActionButton_tooltip": "インクリメント"
+}
