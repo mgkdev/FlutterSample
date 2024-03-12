@@ -7,7 +7,7 @@ runs:
   steps:
     - run: flutter build web ${{ env.FLUTTER_BUILD_ARGS }}
       shell: bash
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: build-web
         path: build/web

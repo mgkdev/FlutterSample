@@ -10,7 +10,7 @@ runs:
 
     - run: flutter build windows ${{ env.FLUTTER_BUILD_ARGS }} ${{ inputs.obfuscation && '--obfuscate --split-debug-info=build/windows' || '' }}
       shell: bash
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: build-windows
         path: build/windows
