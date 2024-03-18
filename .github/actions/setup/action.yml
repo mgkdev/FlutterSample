@@ -5,10 +5,13 @@ runs:
   using: "composite"
 
   steps:
+    - uses: kuhnroyal/flutter-fvm-config-action@v2
+      id: fvm-config-action
+
     - uses: subosito/flutter-action@v2
       with:
-        flutter-version: ${{ env.FLUTTER_VERSION }}
-        channel: "stable"
+        flutter-version: ${{ steps.fvm-config-action.outputs.FLUTTER_VERSION }}
+        channel: ${{ steps.fvm-config-action.outputs.FLUTTER_CHANNEL }}
         cache: true
 
     - name: Version
