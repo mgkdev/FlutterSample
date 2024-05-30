@@ -173,6 +173,122 @@ jobs:
       - name: Build for macOS
         uses: ./.github/actions/build_macos
 
+  release:
+    name: "Release"
+    needs:
+      - build_android
+      - build_ios
+      - build_web
+      - build_windows
+      - build_linux
+      - build_macos
+    if: (!cancelled() && !failure())
+
+    permissions:
+      contents: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          VERSION_NAME=$(yq '.version | sub("[+].*","")' pubspec.yaml)
+          VERSION_NUMBER=$(yq '.version | sub(".*[+]","")' pubspec.yaml)
+          echo "VERSION_NAME=${{ inputs.build_name != '' && format('"{0}"', inputs.build_name) || '$VERSION_NAME' }}" >> $GITHUB_OUTPUT
+          echo "VERSION_NUMBER=${{ inputs.build_number != '' && format('"{0}"', inputs.build_number) || '$VERSION_NUMBER' }}" >> $GITHUB_OUTPUT
+        shell: bash
+        id: version
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-apk
+          path: build/app/outputs/flutter-apk
+        if: needs.build_android.result == 'success'
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-appbundle
+          path: build/app/outputs/bundle/release
+        if: needs.build_android.result == 'success'
+      - run: |
+          cd build/app
+          zip -r ../android.zip ./outputs/flutter-apk ./outputs/bundle/release
+        shell: bash
+        if: needs.build_ios.result == 'success'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-ios
+          path: build/ios/iphoneos
+        if: needs.build_ios.result == 'success'
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-ipa
+          path: build/ios/archive
+        if: needs.build_ios.result == 'success'
+      - run: |
+          cd build/ios
+          zip -r ../ios.zip ./iphoneos ./archive
+        shell: bash
+        if: needs.build_ios.result == 'success'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-web
+          path: build/web
+        if: needs.build_web.result == 'success'
+      - run: |
+          cd build/web
+          zip -r ../web.zip .
+        shell: bash
+        if: needs.build_web.result == 'success'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-windows
+          path: build/windows
+        if: needs.build_windows.result == 'success'
+      - run: |
+          cd build/windows
+          zip -r ../windows.zip .
+        shell: bash
+        if: needs.build_windows.result == 'success'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-linux
+          path: build/linux
+        if: needs.build_linux.result == 'success'
+      - run: |
+          cd build/linux
+          zip -r ../linux.zip .
+        shell: bash
+        if: needs.build_linux.result == 'success'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-macos
+          path: build/macos
+        if: needs.build_macos.result == 'success'
+      - run: |
+          cd build/macos
+          zip -r ../macos.zip .
+        shell: bash
+        if: needs.build_macos.result == 'success'
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION_NAME }}+${{ steps.version.outputs.VERSION_NUMBER }}
+          target_commitish: ${{ github.sha }}
+          draft: true
+          files: |
+            build/android.zip
+            build/ios.zip
+            build/web.zip
+            build/windows.zip
+            build/linux.zip
+            build/macos.zip
+
   notify:
     name: "Notify"
     needs:
@@ -183,6 +299,7 @@ jobs:
       - build_windows
       - build_linux
       - build_macos
+      - release
     if: always()
 
     runs-on: ubuntu-latest
