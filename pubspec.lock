@@ -294,10 +294,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "0a989dc7ca2bb51eac91e8fd00851297cfffd641aa7538b165c62637ca0eaa4a"
+      sha256: a79dbe579cb51ecd6d30b17e0cae4e0ea15e2c0e66f69ad4198f22a6789e94f4
       url: "https://pub.dev"
     source: hosted
-    version: "5.4.0"
+    version: "5.5.1"
 sdks:
-  dart: ">=3.3.4 <4.0.0"
-  flutter: ">=3.19.6"
+  dart: ">=3.4.3 <4.0.0"
+  flutter: ">=3.22.2"
