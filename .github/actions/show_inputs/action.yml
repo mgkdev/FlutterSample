@@ -1,0 +1,31 @@
+name: "Show Inputs"
+description: "Show Inputs Composite Action"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Update Summary
+      run: |
+        if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+          echo "# Inputs [Branch: $GITHUB_REF_NAME]" >> $GITHUB_STEP_SUMMARY
+          echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY
+          EVENT_PATH=${GITHUB_EVENT_PATH}
+          if [ -f "$EVENT_PATH" ]; then
+            inputs=$(jq -r '.inputs | to_entries | .[] | "| \(.key) | \(.value) |"' $EVENT_PATH)
+            if [ ! -z "$inputs" ]; then
+              echo "$inputs" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "No workflow_dispatch inputs found" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "No workflow_dispatch event data found" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "No inputs found as it's not a workflow_dispatch event!" >> $GITHUB_STEP_SUMMARY
+        fi
+      shell: bash
+
+branding:
+  icon: 'table'
+  color: 'blue'

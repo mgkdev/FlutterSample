@@ -52,8 +52,20 @@ env:
     ${{ inputs.build_name != '' && format('--build-name {0}', inputs.build_name) || '' }}
 
 jobs:
+  show_inputs:
+    name: "Show Inputs"
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Inputs
+        uses: ./.github/actions/show_inputs
+
   check:
     name: "Check"
+    needs: show_inputs
     if: inputs.run_check
 
     runs-on: ubuntu-latest
