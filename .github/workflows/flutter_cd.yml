@@ -90,9 +90,9 @@ jobs:
     needs: check
     if: (!cancelled() && !failure()) && inputs.run_build_ios
 
-    runs-on: macos-13
+    runs-on: macos-14
     env:
-      # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#xcode
+      # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md#xcode
       DEVELOPER_DIR: "/Applications/Xcode_15.0.1.app/Contents/Developer"
 
     steps:
@@ -159,9 +159,9 @@ jobs:
     needs: check
     if: (!cancelled() && !failure()) && inputs.run_build_macos
 
-    runs-on: macos-13
+    runs-on: macos-14
     env:
-      # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#xcode
+      # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md#xcode
       DEVELOPER_DIR: "/Applications/Xcode_15.0.1.app/Contents/Developer"
 
     steps:
